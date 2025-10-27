@@ -1,0 +1,54 @@
+[GLOBAL]
+pants_version = "2.29.0"
+backend_packages = [
+    "pants.backend.python",
+    "pants.backend.experimental.tools.yamllint",
+    "pants.backend.project_info",
+    "pants.backend.experimental.python.lint.ruff.check",
+    "pants.backend.experimental.python.lint.ruff.format"
+]
+
+[system-binaries]
+system_binary_paths = [
+    "/usr/bin",
+    "/bin",
+    "/usr/local/bin",
+    "/opt/homebrew/bin",
+    "/home/*/.nvm/versions/node/*/bin",
+]
+
+[source]
+root_patterns = ['/']
+
+[dependencies]
+transitive = true
+
+[cli.alias]
+all = "::"
+lock = "generate-lockfiles --resolve=python-default"
+venv = "export --py-resolve-format=symlinked_immutable_virtualenv --resolve=python-default"
+
+[python]
+interpreter_constraints = ["CPython>=3.11.0"]
+enable_resolves = true
+
+[test]
+use_coverage = true
+
+[coverage-py]
+global_report = true
+report = "xml"
+
+[pytest]
+install_from_resolve = "python-default"
+args = [
+    "-s"
+]
+
+[ruff]
+version = "0.11.5"
+
+[yamllint]
+args = [
+    "-d '{extends:default,rules:{line-length:{max: 120}}}'"
+]

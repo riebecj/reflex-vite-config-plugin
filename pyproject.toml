@@ -1,0 +1,73 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "reflex-vite-config-plugin"
+version = "0.0.1"
+dependencies = [
+    "reflex>=0.8.17",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest~=7.4",
+    "pytest-cov~=4.1",
+    "ruff~=0.3",
+]
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+src = [ "src",]
+force-exclude = true
+extend-exclude = [ "test", "scripts", "docs", "resources"]
+output-format = "grouped"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = []
+
+[tool.ruff.lint.pylint]
+max-args = 6
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = false
+docstring-code-line-length = "dynamic"
+
+[tool.pytest.ini_options]
+console_output_style = "count"
+pythonpath = "src"
+testpaths = [ "test",]
+addopts = "--cov=reflex-vite-config-plugin --cov-report xml --cov-report html --cov-report term-missing --no-cov-on-fail"
+python_files = [ "test_*.py",]
+python_functions = [ "test_*",]
+filterwarnings = [ "ignore::DeprecationWarning",]
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [ 
+    "pragma: no cover", 
+    "def __repr__", 
+    "raise AssertionError", 
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:"
+]
+omit = [ "*setup.py", "*test/*", "__global_coverage__/*"]
+
+[tool.setuptools.packages.find]
+where = [ "src",]
