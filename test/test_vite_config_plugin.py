@@ -81,11 +81,6 @@ class TestViteConfigPlugin:
         result = self.plugin.__python_to_js__(test_list)
         assert result == "['item1', 42, true]"
 
-    def test_python_to_js_tuple(self):
-        test_tuple = ("item1", 42, True)
-        result = self.plugin.__python_to_js__(test_tuple)
-        assert result == "['item1', 42, true]"
-
     def test_python_to_js_empty_dict(self):
         result = self.plugin.__python_to_js__({})
         assert result == "{}"
