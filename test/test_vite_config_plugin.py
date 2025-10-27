@@ -51,6 +51,15 @@ class TestViteConfigPlugin:
         plugin = ViteConfigPlugin(self.basic_config, imports=imports)
         assert plugin.imports == imports
 
+    def test_init_with_functions(self):
+        code = """
+function foo() {
+    return 'bar';
+}
+"""
+        plugin = ViteConfigPlugin(self.basic_config, functions=[RawJS(code)])
+        assert code in plugin.functions
+
     def test_python_to_js_raw_js(self):
         raw_js = RawJS("console.log('test')")
         result = self.plugin.__python_to_js__(raw_js)

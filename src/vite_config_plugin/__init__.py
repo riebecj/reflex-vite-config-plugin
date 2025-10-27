@@ -8,7 +8,7 @@ JavaScript configuration files for the Vite build system.
 
 import copy
 import re
-from typing import Any, Literal, TypedDict
+from typing import Any, Final, Literal, TypedDict
 
 from reflex import constants
 from reflex.config import get_config
@@ -413,33 +413,7 @@ class ViteConfig(TypedDict, total=False):
     worker: WorkerOptions
 
 
-class ViteConfigPlugin(Plugin):
-    """A Reflex plugin for customizing Vite configuration.
-
-    This plugin allows customization of the Vite build configuration by merging
-    user-provided configuration with sensible defaults. It handles conversion
-    of Python configuration objects to JavaScript syntax for the vite.config.js file.
-
-    Attributes:
-        name (str): The plugin name identifier.
-        config (dict[str, Any]): The Vite configuration dictionary.
-        imports (list[str]): List of JavaScript import statements to include.
-        functions (str): JavaScript helper functions for the Vite config.
-    """
-
-    name = "vite_config"
-
-    def __init__(self, config: ViteConfig, *, imports: list[str] | None = None) -> None:
-        """Initialize the ViteConfigPlugin with configuration and imports.
-
-        Args:
-            config: The Vite configuration dictionary to use.
-            imports: Optional list of JavaScript import statements to include.
-        """
-        super().__init__()
-        self.config = config
-        self.imports = imports or []
-        self.functions = """
+REFLEX_FUNCTIONS: Final = """
 // Ensure that bun always uses the react-dom/server.node functions.
 function alwaysUseReactDomServerNode() {
   return {
@@ -473,7 +447,50 @@ function fullReload() {
     }
   };
 }
+"""
+
+
+class ViteConfigPlugin(Plugin):
+    """A Reflex plugin for customizing Vite configuration.
+
+    This plugin allows customization of the Vite build configuration by merging
+    user-provided configuration with sensible defaults. It handles conversion
+    of Python configuration objects to JavaScript syntax for the vite.config.js file.
+
+    Attributes:
+        name (str): The plugin name identifier.
+        config (dict[str, Any]): The Vite configuration dictionary.
+        imports (list[str]): List of JavaScript import statements to include.
+        functions (str): JavaScript helper functions for the Vite config.
+    """
+
+    name = "vite_config"
+
+    def __init__(
+        self,
+        config: ViteConfig,
+        *,
+        imports: list[str] | None = None,
+        functions: list[RawJS] | None = None,
+    ) -> None:
+        """Initialize the ViteConfigPlugin with configuration and imports.
+
+        Args:
+            config: The Vite configuration dictionary to use.
+            imports: Optional list of JavaScript import statements to include.
+            functions: Optional list of RawJS JavaScript functions to include in the config.
         """
+        super().__init__()
+        self.config = config
+        self.imports = imports or []
+        self.functions = REFLEX_FUNCTIONS
+        if functions:
+            for js_func in functions:
+                self.functions += f"""
+
+{js_func.code}
+
+"""
 
     def __set_defaults__(self) -> ViteConfig:
         """Set default configuration values for the Vite plugin."""

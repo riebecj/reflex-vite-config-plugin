@@ -14,6 +14,7 @@ A Reflex `rx.Config()` plugin that allows you to fully customize your Vite confi
 - [Configuration Options](#configuration-options)
     - [Using RawJS](#using-rawjs-for-javascript-code)
     - [Custom Imports](#custom-imports)
+    - [Custom Functions](#custom-functions)
 - [API Reference](#api-reference)
 - [Example](#example)
 - [Contributing](#contributing)
@@ -270,6 +271,26 @@ config = rx.Config(
 )
 ```
 
+### Custom Functions
+
+Add custom JavaScript functions to your Vite config:
+
+```python
+func = """
+function foo() {
+    return 'bar';
+}
+"""
+config = rx.Config(
+    plugins=[
+        ViteConfigPlugin(
+            config,
+            functions=[RawJS(func)]
+        )
+    ]
+)
+```
+
 ## API Reference
 
 ### ViteConfigPlugin
@@ -280,13 +301,15 @@ The main plugin class for Vite configuration.
 ViteConfigPlugin(
     config: ViteConfig,
     *,
-    imports: list[str] | None = None
+    imports: list[str] | None = None,
+    functions: list[RawJS] | None = None,
 )
 ```
 
 **Parameters:**
 - `config`: A dictionary containing Vite configuration options
 - `imports`: Optional list of JavaScript import statements
+- `functions`: Optional list of `RawJS` objects containing Javascript functions used in the Vite config.
 
 ### RawJS
 
