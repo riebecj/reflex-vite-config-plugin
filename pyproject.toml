@@ -5,6 +5,23 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "reflex-vite-config-plugin"
 version = "0.0.1"
+authors = [
+    {name = "riebecj"},
+]
+description = "A Reflex Plugin that allows you to fully customize your Vite config"
+readme = "README.md"
+requires-python = ">=3.11"
+keywords = ["reflex", "vite", "config"]
+license = {file = "LICENSE" }
+classifiers = [
+    "Operating System :: OS Independent",
+    "Development Status :: 3 - Alpha",
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development",
+    "Topic :: Utilities"
+]
 dependencies = [
     "reflex>=0.8.17",
 ]
@@ -15,6 +32,11 @@ dev = [
     "pytest-cov~=4.1",
     "ruff~=0.3",
 ]
+
+[project.urls]
+Repository = "https://github.com/riebecj/reflex-vite-config-plugin"
+Issues = "https://github.com/riebecj/reflex-vite-config-plugin/issues"
+Documentation = "https://github.com/riebecj/reflex-vite-config-plugin?tab=readme-ov-file#reflex-vite-config-plugin"
 
 [tool.setuptools]
 include-package-data = false

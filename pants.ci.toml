@@ -1,0 +1,5 @@
+[GLOBAL]
+# GitHub Actions cache URL and token are set via environment variables
+remote_provider = "experimental-github-actions-cache"
+remote_cache_read = true
+remote_cache_write = true
