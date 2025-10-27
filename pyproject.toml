@@ -89,7 +89,9 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:"
 ]
-omit = [ "*setup.py", "*test/*", "__global_coverage__/*"]
+omit = [ 
+    "*setup.py", "*test/*", "__global_coverage__/*"
+]
 
 [tool.setuptools.packages.find]
 where = [ "src",]
