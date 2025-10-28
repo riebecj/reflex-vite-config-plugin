@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 from reflex import constants
 
-from vite_config_plugin import RawJS, ViteConfigPlugin
+from vite_config_plugin import RawJS, ViteConfigPlugin # pants: no-infer-dep
 
 
 class TestViteConfigPluginIntegration:

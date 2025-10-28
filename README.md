@@ -16,7 +16,6 @@ A Reflex `rx.Config()` plugin that allows you to fully customize your Vite confi
     - [Custom Imports](#custom-imports)
     - [Custom Functions](#custom-functions)
 - [API Reference](#api-reference)
-- [Example](#example)
 - [Contributing](#contributing)
 - [Links](#links)
 - [FAQ](#faq)
@@ -47,24 +46,20 @@ pip install reflex-vite-config-plugin
 
 ```python
 import reflex as rx
-from vite_config_plugin import ViteConfigPlugin, RawJS
+from vite_config_plugin import ViteConfigPlugin
 
-# Create your Vite configuration
-vite_config = {
-    "server": {
-        "port": 4000,
-        "host": "0.0.0.0"
-    },
-    "build": {
-        "sourcemap": True,
-        "target": "es2020"
-    }
-}
-
-# Create and configure your app
-app = rx.App(
+config = rx.Config(
     plugins=[
-        ViteConfigPlugin(vite_config)
+        ViteConfigPlugin({
+            "server": {
+                "port": 4000,
+                "host": "0.0.0.0"
+            },
+            "build": {
+                "sourcemap": True,
+                "target": "es2020"
+            }
+        })
     ]
 )
 ```
@@ -74,61 +69,55 @@ app = rx.App(
 ```python
 from vite_config_plugin import ViteConfigPlugin, RawJS
 
-# Advanced configuration with custom plugins and optimization
-advanced_config = {
-    "plugins": [
-        RawJS("vue()"),
-        RawJS("typescript()"),
-    ],
-    "server": {
-        "port": 3000,
-        "hmr": {
-            "port": 24678,
-            "overlay": True
-        },
-        "proxy": {
-            "/api": "http://localhost:8000"
-        }
-    },
-    "build": {
-        "target": "es2020",
-        "sourcemap": True,
-        "rollupOptions": {
-            "external": ["react", "react-dom"],
-            "output": {
-                "manualChunks": RawJS("""
-                    (id) => {
-                        if (id.includes('node_modules')) {
-                            return 'vendor';
-                        }
-                    }
-                """)
-            }
-        }
-    },
-    "resolve": {
-        "alias": [
-            {"find": "@", "replacement": "./src"},
-            {"find": "@components", "replacement": "./src/components"},
-            {"find": "@utils", "replacement": "./src/utils"}
-        ]
-    },
-    "optimizeDeps": {
-        "include": ["lodash", "axios"],
-        "exclude": ["@my/custom-package"]
-    }
-}
-
-# With custom imports
-app = rx.App(
+config = rx.Config(
     plugins=[
-        ViteConfigPlugin(
-            advanced_config,
-            imports=[
-                'import vue from "@vitejs/plugin-vue";',
-                'import typescript from "@rollup/plugin-typescript";'
-            ]
-        )
+        ViteConfigPlugin({
+            "plugins": [
+                RawJS("vue()"),
+                RawJS("typescript()"),
+            ],
+            "server": {
+                "port": 3000,
+                "hmr": {
+                    "port": 24678,
+                    "overlay": True
+                },
+                "proxy": {
+                    "/api": "http://localhost:8000"
+                }
+            },
+            "build": {
+                "target": "es2020",
+                "sourcemap": True,
+                "rollupOptions": {
+                    "external": ["react", "react-dom"],
+                    "output": {
+                        "manualChunks": RawJS("""
+                            (id) => {
+                                if (id.includes('node_modules')) {
+                                    return 'vendor';
+                                }
+                            }
+                        """)
+                    }
+                }
+            },
+            "resolve": {
+                "alias": [
+                    {"find": "@", "replacement": "./src"},
+                    {"find": "@components", "replacement": "./src/components"},
+                    {"find": "@utils", "replacement": "./src/utils"}
+                ]
+            },
+            "optimizeDeps": {
+                "include": ["lodash", "axios"],
+                "exclude": ["@my/custom-package"]
+            }
+        },
+        imports=[
+            'import vue from "@vitejs/plugin-vue";',
+            'import typescript from "@rollup/plugin-typescript";'
+        ])
     ]
 )
 ```
@@ -303,13 +292,17 @@ ViteConfigPlugin(
     *,
     imports: list[str] | None = None,
     functions: list[RawJS] | None = None,
+    dependencies: list[str] | None = None,
+    extra_configs: list[ViteConfig] | None = None,
 )
 ```
 
 **Parameters:**
-- `config`: A dictionary containing Vite configuration options
-- `imports`: Optional list of JavaScript import statements
+- `config`: A dictionary containing Vite configuration options.
+- `imports`: Optional list of JavaScript import statements.
 - `functions`: Optional list of `RawJS` objects containing Javascript functions used in the Vite config.
+- `dependencies`: Optional list of frontend dependencies to install.
+- `extra_configs`: Optional list of `ViteConfig` dicts to merge.
 
 ### RawJS
 
@@ -332,38 +325,6 @@ The plugin includes comprehensive TypeScript-style type definitions:
 - `Resolve`: Module resolution settings
 - `OptimizeDeps`: Dependency optimization
 - And many more...
-
-## Example
-
-```python
-import reflex as rx
-from vite_config_plugin import ViteConfigPlugin, RawJS
-
-config = rx.Config(
-    plugins=[
-        ViteConfigPlugin(
-            {
-                "plugins": [
-                    RawJS("react()"),
-                    RawJS("tsconfigPaths()")
-                ],
-                "build": {
-                    "target": "es2020",
-                    "sourcemap": True
-                },
-                "server": {
-                    "port": 3000,
-                    "open": True
-                }
-            },
-            imports=[
-                'import react from "@vitejs/plugin-react";',
-                'import tsconfigPaths from "vite-tsconfig-paths";'
-            ],
-        ),
-    ],
-)
-```
 
 ## Contributing
 
@@ -408,7 +369,3 @@ A: Use Python's environment variables and conditionals to create different confi
 
 ### Q: Can I override the default Reflex Vite configuration?
 A: That depends. The plugin uses deep `dict` merging, so MOST of your configuration will override defaults but lists of items are concantenated rather than overridden. That being said, it is ***not*** recommended to override Reflex's defaults as it can break Reflex/Vite in unexpected ways.
-
----
-
-Made with ❤️ for the Reflex community

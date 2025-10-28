@@ -1,4 +1,4 @@
-from vite_config_plugin import (
+from vite_config_plugin import ( # pants: no-infer-dep
     Alias,
     BuildLibOptions,
     BuildOptions,

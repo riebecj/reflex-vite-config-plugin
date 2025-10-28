@@ -8,12 +8,12 @@ JavaScript configuration files for the Vite build system.
 
 import copy
 import re
-from typing import Any, Final, Literal, TypedDict
+from typing import Any, Final, Literal, TypedDict, Unpack
 
 from reflex import constants
 from reflex.config import get_config
 from reflex.environment import environment
-from reflex.plugins.base import Plugin, PreCompileContext
+from reflex.plugins.base import CommonContext, Plugin, PreCompileContext
 from reflex.utils.prerequisites import get_web_dir
 
 
@@ -472,18 +472,28 @@ class ViteConfigPlugin(Plugin):
         *,
         imports: list[str] | None = None,
         functions: list[RawJS] | None = None,
+        dependencies: list[str] | None = None,
+        extra_configs: list[ViteConfig] | None = None,
     ) -> None:
         """Initialize the ViteConfigPlugin with configuration and imports.
+
+        When `extra_configs` are specified, they are merged with the current config starting with the
+        first index (0). So, a subsequent config **WILL** override a previously configured value if they
+        are different.
 
         Args:
             config: The Vite configuration dictionary to use.
             imports: Optional list of JavaScript import statements to include.
             functions: Optional list of RawJS JavaScript functions to include in the config.
+            dependencies: Optional list of frontend dependencies to install.
+            extra_configs: Optional list of other `ViteConfig` dicts to deep merge together.
         """
         super().__init__()
         self.config = config
         self.imports = imports or []
+        self.dependencies = dependencies or []
         self.functions = REFLEX_FUNCTIONS
+        self.extra_configs = extra_configs or []
         if functions:
             for js_func in functions:
                 self.functions += f"""
@@ -630,6 +640,8 @@ class ViteConfigPlugin(Plugin):
         # Convert alias dict to array structure
         default_config = self.__set_defaults__()
         merged_config = self.__deep_merge__(copy.deepcopy(self.config), default_config)
+        for extra in self.extra_configs:
+            merged_config = self.__deep_merge__(extra, merged_config)
         merged_config["resolve"]["alias"] = self.__alias_dict_to_js_array__(merged_config["resolve"]["alias"])
 
         vite_config = self.__python_to_js__(merged_config)
@@ -649,3 +661,14 @@ export default defineConfig((config) => ({vite_config}));
             **context: Pre-compile context containing task management functions.
         """
         context["add_save_task"](self.__render_vite_config__)
+
+    def get_frontend_dependencies(self, **context: Unpack[CommonContext]) -> list[str]:  # noqa: ARG002
+        """Get the list of frontend dependencies for this plugin.
+
+        Args:
+            **context: Common context containing shared plugin information.
+
+        Returns:
+            List of frontend dependency names to be installed.
+        """
+        return self.dependencies

@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from vite_config_plugin import (
+from vite_config_plugin import ( # pants: no-infer-dep
     RawJS,
     ViteConfig,
     ViteConfigPlugin,
@@ -59,6 +59,41 @@ function foo() {
 """
         plugin = ViteConfigPlugin(self.basic_config, functions=[RawJS(code)])
         assert code in plugin.functions
+
+    def test_init_with_dependencies(self):
+        dependencies = [
+            "test-dep-1", "test-dep-2"
+        ]
+        plugin = ViteConfigPlugin(self.basic_config, dependencies=dependencies)
+        assert plugin.get_frontend_dependencies() == dependencies
+
+
+    def test_extra_configs_merging(self):
+        base_config = {
+            "server": {"port": 3000, "host": "localhost"},
+            "build": {"outDir": "dist", "minify": False},
+            "plugins": [RawJS("basePlugin()")],
+        }
+        extra1 = {
+            "server": {"port": 4000},
+            "build": {"sourcemap": True},
+            "plugins": [RawJS("extraPlugin1()")],
+        }
+        extra2 = {
+            "build": {"minify": True},
+            "plugins": [RawJS("extraPlugin2()")],
+        }
+        plugin = ViteConfigPlugin(base_config, extra_configs=[extra1, extra2])
+        _, output = plugin.__render_vite_config__()
+        assert "port: 4000" in output  # overridden by extra1
+        assert "host: 'localhost'" in output  # from base_config
+        assert "sourcemap: true" in output  # added by extra1
+        assert "minify: true" in output  # overridden by extra2
+        # All plugins should be present
+        assert "basePlugin()" in output
+        assert "extraPlugin1()" in output
+        assert "extraPlugin2()" in output
+
 
     def test_python_to_js_raw_js(self):
         raw_js = RawJS("console.log('test')")
