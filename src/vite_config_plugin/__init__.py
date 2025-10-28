@@ -409,6 +409,7 @@ class ViteConfig(TypedDict, total=False):
     server: Server
     build: BuildOptions
     preview: PreviewOptions
+    optimizeDeps: OptimizeDepsOptions
     ssr: SSROptions
     worker: WorkerOptions
 
